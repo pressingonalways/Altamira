@@ -75,7 +75,9 @@ abstract class JsWriterAbstract
     public function getSeriesOption($series, $option)
     {
         if ($series instanceOf \Altamira\Series) {
-            return $this->options['series'][$series->getTitle()][$option];
+            if (isset($this->options['series'][$series->getTitle()])) {
+                return $this->options['series'][$series->getTitle()][$option];
+            }
         } else if (is_string($series)) {
             return $this->options['series'][$series][$option];
         }

@@ -250,15 +250,18 @@ class JqPlot
         }
         
         $seriesOptions = array();
-        foreach($this->options['seriesStorage'] as $title => $opts) {
-            if(isset($types[$title])) {
-                $type = $types[$title];
-                $opts['renderer'] = $type->getRenderer();
-                array_merge_recursive($opts, $type->getSeriesOptions());
+        // TODO wrapped in an isset(); should seriesStorage always be defined?
+        if (isset($this->options['seriesStorage'])) {
+            foreach($this->options['seriesStorage'] as $title => $opts) {
+                if(isset($types[$title])) {
+                    $type = $types[$title];
+                    $opts['renderer'] = $type->getRenderer();
+                    array_merge_recursive($opts, $type->getSeriesOptions());
+                }
+                $opts['label'] = $title;
+                
+                $seriesOptions[] = $opts;
             }
-            $opts['label'] = $title;
-            
-            $seriesOptions[] = $opts;
         }
         $options['seriesStorage'] = $seriesOptions;
         
@@ -274,7 +277,8 @@ class JqPlot
         return $this->makeJSArray($opts);
     }
     
-    public function setSeriesOption( \Altamira\Series $series, $name, $value)
+    // TODO removed Type Hinting because: Runtime Notice: Declaration of Altamira\JsWriter\JqPlot::setSeriesOption() should be compatible with that of Altamira\JsWriter\JsWriterAbstract::setSeriesOption()
+    public function setSeriesOption( $series, $name, $value)
     {
         $this->options['seriesStorage'][$series->getTitle()][$name] = $value;
         

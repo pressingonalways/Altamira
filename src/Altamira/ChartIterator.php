@@ -8,13 +8,13 @@ class ChartIterator extends \ArrayIterator
     protected $plugins;
     protected $scripts;
     
-    public function __construct( $array )
+    public function __construct( $chartsArray )
     {
         //enforce that this is an array of charts
         $plugins = array();
         $scripts = array();
         
-        foreach ($array as $item) {
+        foreach ($chartsArray as $item) {
             if (! $item instanceOf Chart ) {
                 throw new \Exception("ChartIterator only supports an array of Chart instances.");
             }
@@ -26,11 +26,12 @@ class ChartIterator extends \ArrayIterator
         }
 
         // yo dawg...
+        // TODO got to make changes here for it to work with AltamiraBundle
         $this->plugins = new FilesRenderer($plugins, 'js/plugins/');
         $this->scripts = new ScriptsRenderer($scripts);
         
         
-        parent::__construct($array);        
+        parent::__construct($chartsArray);        
     }
     
     
@@ -53,26 +54,49 @@ class ChartIterator extends \ArrayIterator
         return $this;
         
     }
-    
-    public function renderScripts()
-    {
-        echo "<script type='text/javascript'>\n";
-        while ( $this->scripts->valid() ) {
-            
-            $this->scripts->render()
-                          ->next();
-            
+  
+    public function getPlugins() {
+        $plugin=array();
+        while ($this->plugins->valid() ) {
+            $plugin[]=$this->plugins->getScriptPath();
+            $this->plugins->next();
         }
-        echo "\n</script>\n";
-        
-        return $this;
-        
+        return $plugin;
     }
     
+    public function getScripts()
+    {
+        $script="<script type='text/javascript'>\n";
+        while ( $this->scripts->valid() ) {
+            
+            $script.=$this->scripts->getScript();
+            $this->scripts->next();
+            
+        }
+        $script.="\n</script>\n";
+        
+        return $script;
+        
+    }
+
+    public function renderScripts()
+    {
+        echo getScripts();
+        return $this;
+    }
+    
+    /* TODO: This code is excessive. Might as well just look at the last value. Methinks this is broken. -jchan */
     public function renderLibraries()
     {
+        echo "<script type='text/javascript src='".getLibraries()."'></script>\n";
+        return $this;
+    }
+
+    /**
+     * Instead of printing, return this value
+     */
+    public function getLibraries() {
         foreach ($this->libraries as $library=>$junk) {
-            
             switch($library) {
                 case 'flot':
                     $libraryPath = 'js/jquery.flot.js';
@@ -81,15 +105,17 @@ class ChartIterator extends \ArrayIterator
                 default:
                     $libraryPath = 'js/jquery.jqplot.js';
             }
-            
         }
-        
-        echo "<script type='text/javascript' src='$libraryPath'></script>";
-        
+        return $libraryPath;
+    }
+            
+               
+    public function renderCss() {
+        echo getCss();  
         return $this;
     }
     
-    public function renderCss()
+    public function getCss()
     {
         foreach ($this->libraries as $library=>$junk) {
             switch($library) {
@@ -103,11 +129,37 @@ class ChartIterator extends \ArrayIterator
         }
         
         if (isset($cssPath)) {
-            echo "<link rel='stylesheet' type='text/css' href='{$cssPath}'></link>";
+            return "<link rel='stylesheet' type='text/css' href='{$cssPath}'></link>";
         }
         
-        return $this;
         
     }
-    
+
+
+    //TODO we have to make all the Paths user assignable
+    public function getCSSPath() {
+        foreach ($this->libraries as $library=>$junk) {
+            switch($library) {
+                case 'flot':
+                    break;
+                case 'jqPlot':
+                default:
+                    $cssPath = 'css/jqplot.css';
+            }
+        
+        }
+        
+        if (isset($cssPath)) {
+            return ($cssPath);
+        }
+    }
+        
+
+
+    public function getJSLibraries() {
+        $libraries= array( "js/jquery.js", $this->getLibraries() );
+        $libraries=array_merge(  $libraries ,$this->getPlugins());
+        return $libraries;
+    }
+ 
 }
