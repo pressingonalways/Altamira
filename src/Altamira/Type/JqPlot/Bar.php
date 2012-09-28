@@ -11,7 +11,8 @@ class Bar extends \Altamira\Type\TypeAbstract
 
 		$first = array();
 		$second = array();
-        if ($this->axisRenderer) {
+        // TODO wrapped in a isset(), should axisRenderer always be defined?
+        if (isset($this->axisRenderer) && $this->axisRenderer) {
 		    $first['renderer'] = '#' . $this->axisRenderer . '#';
         }
 		if(isset($this->options['ticks']))
@@ -48,10 +49,13 @@ class Bar extends \Altamira\Type\TypeAbstract
 		if(isset($this->options['horizontal']) && $this->options['horizontal'])
 			$opts['barDirection'] = 'horizontal';
 
-		foreach($this->allowedOptions as $item) {
-			if(isset($this->options[$item]))
-				$opts[$item] = $this->options[$item];
-		}
+                // TODO wrapped in an isset(), should allowedOptions always be defined?
+                if (isset($this->allowedOptions)) {
+		    foreach($this->allowedOptions as $item) {
+		    	if(isset($this->options[$item]))
+		    		$opts[$item] = $this->options[$item];
+		    }
+                }
 
 		return $opts;
 	}

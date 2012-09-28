@@ -4,9 +4,10 @@ namespace Altamira\ChartRenderer;
 
 abstract class RendererAbstract
 {
-    abstract public static function preRender( \Altamira\Chart $chart, array $styleOptions = array() );
+    // TODO abstract static functions are unsupported in >=PHP5.2
+    //abstract public static function preRender( \Altamira\Chart $chart, array $styleOptions = array() );
     
-    abstract public static function postRender( \Altamira\Chart $chart, array $styleOptions = array() );
+    //abstract public static function postRender( \Altamira\Chart $chart, array $styleOptions = array() );
     
     public static function renderStyle( array $styleOptions = array() ) 
     {

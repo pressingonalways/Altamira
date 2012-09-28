@@ -38,7 +38,8 @@ class ChartRenderer
         
         array_push( self::$rendererChain, $renderer );
         
-        return self;
+        // we are not allowed to return self!
+        //return self;
     }
     
     public static function unshiftRenderer( $renderer )
@@ -49,14 +50,16 @@ class ChartRenderer
         
         array_unshift( self::$rendererChain, $renderer );
         
-        return self;
+        // we are not allowed to return self!
+        //return self;
     }
     
     public function reset()
     {
         self::$rendererChain = array();
         
-        return self;
+        // we are not allowed to return self!
+        //return self;
     }
     
 }
