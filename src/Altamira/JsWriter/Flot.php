@@ -33,6 +33,7 @@ class Flot
         
         $this->prepOpts($this->options['series']);
         
+        $counter=0;
         foreach ($this->chart->getSeries() as $title=>$series) {
             
             $dataArrayJs .= $counter++ > 0 ? ', ' : '';
@@ -103,8 +104,14 @@ class Flot
             
             $dataArrayJs .= 'data: '.$this->makeJSArray($data);
             
-            if ($this->types['default'] instanceOf \Altamira\Type\Flot\Bubble ) {
-                $dataArrayJs .= ', label: "' . str_replace('"', '\\"', end(end($series->getData()))) . '"';
+            // TODO wrapped this in an isset(), is 'default' always supposed to be defined?
+            if (isset($this->types['default']) && $this->types['default'] instanceOf \Altamira\Type\Flot\Bubble ) {
+                // TODO somebody late night coding? originally: end(end($series->getData())))
+                // end(end()) makes no sense!
+                $var0=$series->getData();
+                $var1=end($var0);
+                $var2=end($var1);
+                $dataArrayJs .= ', label: "' . str_replace('"', '\\"', $var2) . '"';
             }
 
             $this->prepOpts( $this->options['seriesStorage'][$title] );
@@ -153,8 +160,8 @@ placeholder.on('dblclick', function(){ plot.clearSelection(); jQuery.plot(placeh
 ENDJS;
         
         }
-        
-        if ($this->useLabels) {
+        // TODO wrapped in isset(), is useLabels always supposed to be defined?
+        if (isset($this->useLabels) && $this->useLabels) {
             $seriesLabels = json_encode($this->pointLabels);
             
             $top = '';
@@ -306,13 +313,16 @@ ENDJS;
         }
     
         $seriesOptions = array();
-        foreach($this->options['seriesStorage'] as $title => $opts) {
-            if(isset($types[$title])) {
-                $type = $types[$title];
-                array_merge_recursive($opts, $type->getSeriesOptions());
+        // TODO wrapped in isset(), is seriesStorage always supposed to be defined?
+        if (isset ($this->options['seriesStorage'])) {
+            foreach($this->options['seriesStorage'] as $title => $opts) {
+                if(isset($types[$title])) {
+                    $type = $types[$title];
+                    array_merge_recursive($opts, $type->getSeriesOptions());
+                }
+                $opts['label'] = $title;
+                $seriesOptions[$title] = $opts;
             }
-            $opts['label'] = $title;
-            $seriesOptions[$title] = $opts;
         }
         $options['seriesStorage'] = $seriesOptions;
         
@@ -324,7 +334,7 @@ ENDJS;
         foreach ($this->optsMapper as $opt => $mapped)
         {
             if (($currOpt = $this->getOptVal($this->options, $opt)) && ($currOpt !== null)) {
-                $this->setOpt(&$this->options, $mapped, $currOpt);
+                $this->setOpt($this->options, $mapped, $currOpt);
                 $this->unsetOpt($this->options, $opt);
             }
         }
